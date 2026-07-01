@@ -142,7 +142,7 @@ function setupEventDelegation() {
   const root = document.getElementById("root")!;
   root.addEventListener("click", (e: Event) => {
     const target = e.target as HTMLElement;
-    if (target.closest("#btn-login")) { supabase.auth.signInWithOAuth({ provider: "google", options: { redirectTo: globalThis.location.origin } }); return; }
+    if (target.closest("#btn-login")) { supabase.auth.signInWithOAuth({ provider: "google", options: { redirectTo: globalThis.location.href.split("#")[0] } }); return; }
     if (target.closest("#btn-logout")) {
       supabase.auth.signOut(); state.reports = []; state.reportData = null; state.drawerOpen = false; globalThis.location.hash = "#/login"; return;
     }
