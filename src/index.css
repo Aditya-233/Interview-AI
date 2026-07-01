@@ -1,0 +1,18 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", sans-serif;
+  --font-display: "Plus Jakarta Sans", "Inter", sans-serif;
+  --color-accent: #5E6AD2;
+  --color-accent-hover: #6E79D6;
+  --color-bg-page: #08090A;
+  --color-bg-card: #0E1012;
+  --color-bg-panel: #151719;
+  --color-bg-input: #101113;
+  --color-border-color: #222428;
+  --color-text-primary: #F7F8F8;
+  --color-text-muted: #8A8F98;
+  --color-severity-high: #EF4444;
+  --color-severity-medium: #F5A524;
+  --color-severity-low: #22C55E;
+}
