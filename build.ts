@@ -1,6 +1,6 @@
 async function build() {
   console.log("Starting static build...");
-  
+
   // 1. Create dist directory
   await Deno.mkdir("dist/assets", { recursive: true });
 
