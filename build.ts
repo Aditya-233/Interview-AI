@@ -27,7 +27,7 @@ async function build() {
   // 4. Copy index.html and update paths
   console.log("Copying index.html...");
   let html = await Deno.readTextFile("index.html");
-  html = html.replace("/src/main.ts", "/assets/index.js");
+  html = html.replace("/src/main.ts", "assets/index.js");
   await Deno.writeTextFile("dist/index.html", html);
 
   console.log("Build complete! Static files are in the 'dist' directory.");
