@@ -4,7 +4,6 @@ create table if not exists public.reports (
   user_id uuid references auth.users not null,
   title text not null,
   "jobDescription" text not null,
-  resume text,
   "matchScore" integer not null,
   "technicalQuestions" jsonb default '[]'::jsonb,
   "behavioralQuestions" jsonb default '[]'::jsonb,

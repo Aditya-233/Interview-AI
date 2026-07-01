@@ -6,7 +6,6 @@
   },
   "imports": {
     "@std/http/file-server": "jsr:@std/http@^1.1.2/file-server",
-    "@std/encoding/base64": "jsr:@std/encoding@^1.0.5/base64",
     "@google/genai": "npm:@google/genai@^2.10.0",
     "@supabase/supabase-js": "npm:@supabase/supabase-js@^2.43.0",
     "iconify-icon": "npm:iconify-icon@^1.0.8",
