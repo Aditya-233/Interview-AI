@@ -1,5 +1,4 @@
 import { createClient, User } from "@supabase/supabase-js";
-import "iconify-icon";
 
 interface Question {
   question: string;
@@ -42,21 +41,6 @@ const supabase = createClient(
   "sb_publishable_bUuA4ZBTLb4WkMWap0x4vw_GZ7HMouV",
 );
 
-function normalizeArray<T>(val: unknown): T[] {
-  try {
-    const arr = Array.isArray(val) ? val : typeof val === "string" ? JSON.parse(val) : [];
-    return (Array.isArray(arr) ? arr : []).map((item) => {
-      try {
-        return typeof item === "string" ? JSON.parse(item) : item;
-      } catch {
-        return item;
-      }
-    }) as T[];
-  } catch {
-    return [];
-  }
-}
-
 const state = {
   route: "loading" as "loading" | "login" | "dashboard" | "interview",
   user: null as User | null,
@@ -73,13 +57,13 @@ const state = {
 function init() {
   const chk = async (u?: User | null) => {
     const prev = state.user;
-    state.user = u !== undefined ? u : (await supabase.auth.getSession()).data.session?.user || null;
+    state.user = u !== undefined ? u : (await supabase.auth.getSession()).data.session?.user ?? null;
     if (state.user && !prev) fetchRecentPlans();
     handleRouting();
   };
 
   chk();
-  supabase.auth.onAuthStateChange((_, s) => chk(s?.user || null));
+  supabase.auth.onAuthStateChange((_, s) => chk(s?.user ?? null));
   globalThis.addEventListener("hashchange", handleRouting);
   setupEventDelegation();
 }
@@ -102,7 +86,7 @@ async function handleRouting() {
   } else if (hash.startsWith("#/interview/")) {
     if (!state.user) return void (globalThis.location.hash = "#/login");
     state.route = "interview";
-    await fetchInterviewDetail(hash.split("/").pop() || "");
+    await fetchInterviewDetail(hash.split("/").pop() ?? "");
   }
 }
 
@@ -110,7 +94,7 @@ async function fetchRecentPlans() {
   const { data } = await supabase.from("reports").select(
     "id, title, matchScore, createdAt",
   ).eq("user_id", state.user!.id).order("createdAt", { ascending: false });
-  state.reports = (data || []) as RecentPlan[];
+  state.reports = (data ?? []) as RecentPlan[];
   render();
 }
 
@@ -121,12 +105,7 @@ async function fetchInterviewDetail(id: string) {
     const { data } = await supabase.from("reports").select("*").eq("id", id)
       .single();
     if (!data) throw new Error();
-    const r = data as ReportData;
-    r.technicalQuestions = normalizeArray(r.technicalQuestions);
-    r.behavioralQuestions = normalizeArray(r.behavioralQuestions);
-    r.skillGaps = normalizeArray(r.skillGaps);
-    r.preparationPlan = normalizeArray(r.preparationPlan);
-    state.reportData = r;
+    state.reportData = data as ReportData;
     state.activeTab = "technical";
   } catch {
     globalThis.location.hash = "#/dashboard";
@@ -146,12 +125,11 @@ async function generateReport(jd: string) {
   fd.append("jobDescription", jd.trim());
   fd.append("resume", state.selectedFile);
   try {
-    const session = (await supabase.auth.getSession()).data.session;
     const res = await fetch(
       "https://cuvqdoxebbgtxevxgmal.supabase.co/functions/v1/generate-report",
       {
         method: "POST",
-        headers: { Authorization: `Bearer ${session?.access_token ?? ""}` },
+        headers: { Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token ?? ""}` },
         body: fd,
       },
     );
@@ -179,7 +157,7 @@ async function generateReport(jd: string) {
       preparationPlan,
     }).select().single();
     if (error || !newReport) {
-      throw new Error(error?.message || "Failed to save plan.");
+      throw new Error(error?.message ?? "Failed to save plan.");
     }
     state.selectedFile = null;
     state.jobDescription = "";
@@ -195,9 +173,7 @@ async function generateReport(jd: string) {
 
 function render() {
   const root = document.getElementById("root");
-  if (!root) {
-    return;
-  }
+  if (!root) return;
 
   if (state.route === "loading" || state.isDetailLoading) {
     root.innerHTML = `<div class="min-h-screen flex flex-col items-center justify-center gap-4 bg-bg-page text-text-primary"><div class="w-12 h-12 border-4 border-accent border-t-transparent rounded-full animate-spin"></div><h1 class="text-sm font-bold font-display">${state.isDetailLoading ? "Loading details..." : "Initializing session..."}</h1></div>`;
@@ -205,13 +181,14 @@ function render() {
   }
 
   if (state.route === "login") {
-    root.innerHTML = `<div class="min-h-screen flex items-center justify-center bg-bg-page text-text-primary p-4"><div class="w-full max-w-sm bg-bg-card border border-border-color rounded-xl p-7 shadow-none text-center"><h1 class="text-xl font-display font-semibold mb-1.5 tracking-tight">Welcome Back</h1><p class="text-text-muted text-xs mb-6 font-sans">Sign in to access your interview plans</p><button id="btn-login" class="w-full flex items-center justify-center gap-3 bg-white text-black hover:bg-neutral-200 text-xs font-semibold py-2.5 px-4 rounded-md shadow-sm transition duration-150 transform active:scale-[0.98]"><iconify-icon icon="flat-color-icons:google" class="text-lg"></iconify-icon><span>Continue with Google</span></button></div></div>`;
+    root.innerHTML =
+      `<div class="min-h-screen flex items-center justify-center bg-bg-page text-text-primary p-4"><div class="w-full max-w-sm bg-bg-card border border-border-color rounded-xl p-7 shadow-none text-center"><h1 class="text-xl font-display font-semibold mb-1.5 tracking-tight">Welcome Back</h1><p class="text-text-muted text-xs mb-6 font-sans">Sign in to access your interview plans</p><button id="btn-login" class="w-full flex items-center justify-center gap-3 bg-white text-black hover:bg-neutral-200 text-xs font-semibold py-2.5 px-4 rounded-md shadow-sm transition duration-150 transform active:scale-[0.98]"><svg class="w-4.5 h-4.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.29v3.14C3.26 21.3 7.31 24 12 24z"/><path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.59H1.29C.47 8.22 0 10.06 0 12s.47 3.78 1.29 5.41l3.99-3.14z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.31 0 3.26 2.7 1.29 6.59l3.99 3.14c.95-2.83 3.6-4.98 6.72-4.98z"/></svg><span>Continue with Google</span></button></div></div>`;
     return;
   }
 
   const reportsBadge = state.reports.length > 0 ? `<button id="btn-toggle-drawer" class="text-[11px] font-medium text-text-muted hover:text-text-primary bg-white/[0.02] border border-border-color/60 hover:border-border-color hover:bg-white/[0.06] px-2.5 py-1 rounded-md transition duration-150 flex items-center gap-1.5 active:scale-95"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"></path></svg>History</button>` : "";
 
-  const displayName = state.user?.email ? state.user.email.split("@")[0] : "User";
+  const displayName = (state.user?.email ?? "User").split("@")[0];
 
   const navHtml =
     `<nav class="sticky top-0 z-50 w-full backdrop-blur-md bg-bg-page/80 border-b border-border-color px-6 py-2.5 flex items-center justify-between"><a href="#/dashboard" class="text-sm font-display font-semibold tracking-tight flex items-center gap-1.5"><svg class="w-4 h-4 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>Interview<span class="text-accent">AI</span></a><div class="flex items-center gap-2">${reportsBadge}<span class="text-[11px] font-medium text-text-primary bg-white/[0.04] px-2.5 py-1 rounded-md border border-border-color/80 select-none max-w-[150px] truncate hidden sm:inline">${displayName}</span><button id="btn-logout" class="text-[11px] font-medium text-text-muted hover:text-text-primary px-2.5 py-1 hover:bg-white/[0.04] border border-transparent hover:border-border-color rounded-md transition duration-150">Logout</button></div></nav>`;
@@ -233,41 +210,23 @@ function render() {
       `<main class="flex-grow max-w-5xl w-full mx-auto p-6 md:p-8 flex flex-col items-center justify-center gap-10"><header class="text-center"><h1 class="text-3xl md:text-4xl font-display font-bold mb-2 tracking-tight">Create Your Custom <span class="text-accent">Interview Plan</span></h1><p class="text-text-muted text-sm md:text-base max-w-lg mx-auto leading-relaxed font-sans">Let our AI analyze the job requirements and your unique profile to build a winning strategy.</p></header><div class="w-full bg-bg-card border border-border-color rounded-xl overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.3)] flex flex-col max-w-2xl"><div class="flex items-center justify-between px-5 py-3 border-b border-border-color bg-white/[0.01]"><div class="flex items-center gap-2"><span class="text-accent"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5"><rect x="2" y="7" width="20" height="14" rx="2" ry="2" /><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" /></svg></span><h2 class="text-xs font-display font-semibold tracking-tight text-text-primary">New Interview Strategy</h2></div><span class="text-[9px] font-bold tracking-wider text-accent bg-accent/10 border border-accent/25 px-2 py-0.5 rounded-md uppercase">AI Strategy</span></div><div class="flex flex-col relative bg-white/[0.005]"><textarea id="jd-input" maxLength="5000" placeholder="Paste target job description here...&#10;e.g. 'Senior Frontend Engineer requires proficiency in React, TypeScript, and large-scale system design...'" class="w-full min-h-[260px] bg-transparent text-text-primary placeholder-text-muted/45 px-5 py-4 focus:outline-none resize-none text-xs leading-relaxed border-0">${state.jobDescription}</textarea><div class="text-[9px] text-text-muted px-5 pb-3 self-end select-none"><span id="jd-count">${state.jobDescription.length}</span> / 5000 chars</div></div><div class="flex items-center justify-between border-t border-border-color px-5 py-3 bg-white/[0.01]"><div class="flex items-center gap-3"><label id="resumeLabel" for="file-input" class="flex items-center gap-2 px-2.5 py-1.5 text-[11px] font-medium rounded-md transition duration-150 cursor-pointer ${fileClass}"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-3 h-3"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" /></svg><span id="resumeLabelText">${fileText}</span></label><input type="file" id="file-input" accept=".pdf" class="hidden" /><span class="hidden md:inline text-[10px] text-text-muted select-none">PDF required &bull; Max 3MB</span></div><button id="btn-generate" class="bg-accent hover:bg-accent-hover text-white text-[11px] font-medium px-3.5 py-1.5 rounded-md border border-white/10 shadow-sm transition duration-150 transform active:scale-[0.98] flex items-center gap-1.5"><svg class="w-3 h-3 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" /></svg>Generate Strategy</button></div></div></main>`;
   } else if (state.route === "interview" && state.reportData) {
     const r = state.reportData;
-    const isReality = r.matchScore < 30 ||
-      (r.preparationPlan.length === 1 && r.preparationPlan[0].day === 0);
-    const [ringColor, scoreMsgColor, scoreMessage] = r.matchScore >= 80
-      ? [
-        "border-severity-low",
-        "text-severity-low",
-        "Strong match for this role",
-      ]
-      : r.matchScore >= 60
-      ? ["border-severity-medium", "text-severity-medium", "Moderate match"]
-      : [
-        "border-severity-high",
-        "text-severity-high",
-        "Action needed: Skill gaps",
-      ];
+    const isReality = r.matchScore < 30 || (r.preparationPlan.length === 1 && r.preparationPlan[0].day === 0);
+    const [ringColor, scoreMsgColor, scoreMessage] = r.matchScore >= 80 ? ["border-severity-low", "text-severity-low", "Strong match for this role"] : r.matchScore >= 60 ? ["border-severity-medium", "text-severity-medium", "Moderate match"] : ["border-severity-high", "text-severity-high", "Action needed: Skill gaps"];
 
     let tabContent = "";
     if (state.activeTab === "technical" || state.activeTab === "behavioral") {
       const qs = state.activeTab === "technical" ? r.technicalQuestions : r.behavioralQuestions;
       tabContent = `<div class="flex flex-col gap-5"><div class="flex items-baseline gap-3 border-b border-border-color pb-3"><h2 class="text-sm font-display font-semibold tracking-tight">${state.activeTab === "technical" ? "Technical Questions" : "Behavioral Questions"}</h2><span class="text-[10px] text-text-muted bg-bg-panel border border-border-color px-2 py-0.5 rounded-full">${qs.length} questions</span></div><div class="flex flex-col gap-3.5">${
         qs.map((q, idx) =>
-          `<div class="bg-bg-panel border border-border-color rounded-md overflow-hidden transition duration-150"><div data-accordion-id="${state.activeTab}-${idx}" class="flex items-start gap-2.5 p-3 cursor-pointer select-none hover:bg-white/[0.02] transition duration-150"><span class="flex-shrink-0 text-[9px] font-bold text-accent bg-accent/10 border border-accent/20 px-1.5 py-0.5 rounded-md mt-0.5">Q${
+          `<details class="group bg-bg-panel border border-border-color rounded-md overflow-hidden transition duration-150"><summary class="flex items-start gap-2.5 p-3 cursor-pointer select-none hover:bg-white/[0.02] transition duration-150 list-none [&::-webkit-details-marker]:hidden"><span class="flex-shrink-0 text-[9px] font-bold text-accent bg-accent/10 border border-accent/20 px-1.5 py-0.5 rounded-md mt-0.5">Q${
             idx + 1
-          }</span><p class="flex-1 font-semibold text-xs leading-relaxed">${q.question}</p><span class="chevron text-text-muted mt-0.5 transform transition-transform duration-200"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg></span></div><div id="content-${state.activeTab}-${idx}" class="hidden border-t border-border-color p-3 flex flex-col gap-3.5 bg-bg-page/40"><div class="flex flex-col gap-1.5"><span class="text-[9px] font-bold tracking-wider text-indigo-200 bg-indigo-500/10 border border-indigo-500/20 px-1.5 py-0.5 rounded w-max uppercase">Intention</span><p class="text-[11px] text-text-muted leading-relaxed">${q.intention}</p></div><div class="flex flex-col gap-1.5"><span class="text-[9px] font-bold tracking-wider text-emerald-200 bg-emerald-500/10 border border-emerald-500/20 px-1.5 py-0.5 rounded w-max uppercase">Model Answer</span><p class="text-[11px] text-text-muted leading-relaxed">${q.answer}</p></div></div></div>`
-        ).join("") ||
-        `<p class="text-xs text-text-muted text-center py-8">No questions.</p>`
+          }</span><p class="flex-1 font-semibold text-xs leading-relaxed">${q.question}</p><span class="chevron text-text-muted mt-0.5 transform transition-transform duration-200 group-open:rotate-180"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg></span></summary><div class="border-t border-border-color p-3 flex flex-col gap-3.5 bg-bg-page/40"><div class="flex flex-col gap-1.5"><span class="text-[9px] font-bold tracking-wider text-indigo-200 bg-indigo-500/10 border border-indigo-500/20 px-1.5 py-0.5 rounded w-max uppercase">Intention</span><p class="text-[11px] text-text-muted leading-relaxed">${q.intention}</p></div><div class="flex flex-col gap-1.5"><span class="text-[9px] font-bold tracking-wider text-emerald-200 bg-emerald-500/10 border border-emerald-500/20 px-1.5 py-0.5 rounded w-max uppercase">Model Answer</span><p class="text-[11px] text-text-muted leading-relaxed">${q.answer}</p></div></div></details>`
+        ).join("") || '<p class="text-xs text-text-muted text-center py-8">No questions.</p>'
       }</div></div>`;
     } else if (state.activeTab === "roadmap") {
       tabContent = `<div class="flex flex-col gap-5"><div class="flex items-baseline gap-3 border-b border-border-color pb-3"><h2 class="text-sm font-display font-semibold tracking-tight">Road Map</h2><span class="text-[10px] text-text-muted bg-bg-panel border border-border-color px-2 py-0.5 rounded-full">${isReality ? "Long-Term Strategy" : `${r.preparationPlan.length}-day plan`}</span></div><div class="relative pl-8 border-l border-border-color/60 ml-3 space-y-5">${
         isReality && r.preparationPlan[0]
-          ? `<div class="relative flex flex-col gap-2 pb-1.5"><div class="absolute -left-[39px] top-1.5 w-3.5 h-3.5 rounded-full bg-bg-card border-2 border-accent"></div><div class="flex items-center gap-2"><span class="text-[9px] font-bold text-accent bg-accent/10 border border-accent/25 px-2 py-0.5 rounded-full">Pivot</span><h3 class="font-display font-semibold text-xs text-text-primary">Pivot Strategy & Reality Check</h3></div><p class="text-xs text-text-muted leading-relaxed px-5">The mismatch between job requirements and your profile is high.</p><ul class="list-disc pl-10 text-[11px] text-text-muted space-y-1">${
-            r.preparationPlan[0].tasks.map((task) => `<li>${task}</li>`).join(
-              "",
-            )
-          }</ul></div>`
+          ? `<div class="relative flex flex-col gap-2 pb-1.5"><div class="absolute -left-[39px] top-1.5 w-3.5 h-3.5 rounded-full bg-bg-card border-2 border-accent"></div><div class="flex items-center gap-2"><span class="text-[9px] font-bold text-accent bg-accent/10 border border-accent/25 px-2 py-0.5 rounded-full">Pivot</span><h3 class="font-display font-semibold text-xs text-text-primary">Pivot Strategy & Reality Check</h3></div><p class="text-xs text-text-muted leading-relaxed px-5">The mismatch between job requirements and your profile is high.</p><ul class="list-disc pl-10 text-[11px] text-text-muted space-y-1">${r.preparationPlan[0].tasks.map((task) => `<li>${task}</li>`).join("")}</ul></div>`
           : r.preparationPlan.map((day) => `<div class="relative flex flex-col gap-2 pb-1.5"><div class="absolute -left-[39px] top-1.5 w-3.5 h-3.5 rounded-full bg-bg-card border-2 border-accent"></div><div class="flex items-center gap-2"><span class="text-[9px] font-bold text-accent bg-accent/10 border border-accent/25 px-2 py-0.5 rounded-full">Day ${day.day}</span><h3 class="font-display font-semibold text-xs text-text-primary">${day.focus}</h3></div><ul class="list-disc pl-5 text-[11px] text-text-muted space-y-1">${day.tasks.map((task) => `<li>${task}</li>`).join("")}</ul></div>`).join("")
       }</div></div>`;
     }
@@ -307,22 +266,8 @@ function setupEventDelegation() {
     ) {
       state.drawerOpen = false;
       render();
-    } else if (t.closest("[data-accordion-id]")) {
-      const acc = t.closest("[data-accordion-id]")!;
-      const content = document.getElementById(
-        `content-${acc.getAttribute("data-accordion-id")}`,
-      );
-      if (content) {
-        acc.querySelector(".chevron")?.classList.toggle(
-          "rotate-180",
-          !content.classList.toggle("hidden"),
-        );
-      }
     } else if (t.closest("#btn-generate")) {
-      generateReport(
-        (document.getElementById("jd-input") as HTMLTextAreaElement)?.value ||
-          "",
-      );
+      generateReport((document.getElementById("jd-input") as HTMLTextAreaElement).value);
     } else {
       for (const tab of ["technical", "behavioral", "roadmap"] as const) {
         if (t.closest(`#tab-${tab}`)) {
@@ -337,8 +282,7 @@ function setupEventDelegation() {
     const t = e.target as HTMLTextAreaElement;
     if (t.id === "jd-input") {
       state.jobDescription = t.value;
-      const count = document.getElementById("jd-count");
-      if (count) count.textContent = String(t.value.length);
+      document.getElementById("jd-count")!.textContent = `${t.value.length}`;
     }
   });
   root.addEventListener("change", (e) => {

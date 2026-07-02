@@ -2,6 +2,7 @@
   "version": "5",
   "specifiers": {
     "jsr:@std/cli@^1.0.31": "1.0.31",
+    "jsr:@std/encoding@*": "1.0.11",
     "jsr:@std/encoding@^1.0.11": "1.0.11",
     "jsr:@std/fmt@^1.0.10": "1.0.10",
     "jsr:@std/fs@0.224": "0.224.0",
@@ -18,7 +19,6 @@
     "npm:@supabase/supabase-js@^2.43.0": "2.110.0",
     "npm:@tailwindcss/cli@*": "4.3.2",
     "npm:esbuild@*": "0.28.1",
-    "npm:iconify-icon@^1.0.8": "1.0.8",
     "npm:tailwindcss@3": "3.4.19",
     "npm:tailwindcss@4": "4.3.2",
     "npm:zod-to-json-schema@*": "3.25.2_zod@4.4.3",
@@ -47,7 +47,7 @@
       "integrity": "1c0473590d5e5b75b30b2be4833c08047dd799aeea35624fd34ec58d67fc9240",
       "dependencies": [
         "jsr:@std/cli",
-        "jsr:@std/encoding",
+        "jsr:@std/encoding@^1.0.11",
         "jsr:@std/fmt",
         "jsr:@std/fs@^1.0.24",
         "jsr:@std/html",
@@ -219,9 +219,6 @@
         "ws"
       ],
       "scripts": true
-    },
-    "@iconify/types@2.0.0": {
-      "integrity": "sha512-+wluvCrRhXrhyOmRDJ3q8mux9JkKy5SJ/v8ol2tu4FVjyYvtEzkc/3pK15ET6RKg4b4w4BmTk1+gsCUhf21Ykg=="
     },
     "@jridgewell/gen-mapping@0.3.13": {
       "integrity": "sha512-2kkt/7niJ6MgEPxF0bYdQ6etZaA+fQvDcLKckhy1yIQOzaoKjBBjSj63/aLVjYE3qhRt5dvM+uUyfCg6UKCBbA==",
@@ -788,12 +785,6 @@
     "iceberg-js@0.8.1": {
       "integrity": "sha512-1dhVQZXhcHje7798IVM+xoo/1ZdVfzOMIc8/rgVSijRK38EDqOJoGula9N/8ZI5RD8QTxNQtK/Gozpr+qUqRRA=="
     },
-    "iconify-icon@1.0.8": {
-      "integrity": "sha512-jvbUKHXf8EnGGArmhlP2IG8VqQLFFyTvTqb9LVL2TKTh7/eCCD1o2HHE9thpbJJb6B8hzhcFb6rOKhvo7reNKA==",
-      "dependencies": [
-        "@iconify/types"
-      ]
-    },
     "is-binary-path@2.1.0": {
       "integrity": "sha512-ZMERYes6pDydyuGidse7OsHxtbI7WVeUEozgR/g7rd0xUimYNlvZRE/K2MgZTjWy725IfelLeVcEM97mmtRGXw==",
       "dependencies": [
@@ -1231,10 +1222,10 @@
   },
   "workspace": {
     "dependencies": [
+      "jsr:@std/encoding@1",
       "jsr:@std/http@^1.1.2",
       "npm:@google/genai@^2.10.0",
       "npm:@supabase/supabase-js@^2.43.0",
-      "npm:iconify-icon@^1.0.8",
       "npm:tailwindcss@4"
     ]
   }

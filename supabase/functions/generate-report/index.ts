@@ -1,5 +1,5 @@
-import { GoogleGenAI, Type } from "@google/genai";
-import { Buffer } from "node:buffer";
+import { GoogleGenAI, Type } from "npm:@google/genai";
+import { encodeBase64 } from "jsr:@std/encoding/base64";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -123,20 +123,12 @@ export default {
         });
       }
 
-      const pdfBase64 = Buffer.from(await file.arrayBuffer()).toString(
-        "base64",
-      );
-
-      const ai = new GoogleGenAI({
-        apiKey: Deno.env.get("GOOGLE_GENAI_API_KEY") || "",
-      });
-
-      const res = await ai.models.generateContent({
-        model: "gemini-2.5-flash",
+      const res = await new GoogleGenAI({ apiKey: Deno.env.get("GOOGLE_GENAI_API_KEY") ?? "" }).models.generateContent({
+        model: "gemini-3.5-flash",
         contents: [{
           inlineData: {
             mimeType: "application/pdf",
-            data: pdfBase64,
+            data: encodeBase64(await file.arrayBuffer()),
           },
         }, `Job Description:\n${jd.trim()}`],
 
@@ -148,10 +140,9 @@ export default {
         },
       });
 
-      return new Response(
-        JSON.stringify({ report: JSON.parse(res.text || "{}") }),
-        { headers: { ...corsHeaders, "content-type": "application/json" } },
-      );
+      return new Response(JSON.stringify({ report: JSON.parse(res.text!) }), {
+        headers: { ...corsHeaders, "content-type": "application/json" },
+      });
     } catch (e: unknown) {
       console.error(e);
       return new Response(JSON.stringify({ error: (e as Error).message }), {

@@ -1,14 +1,14 @@
 {
   "tasks": {
     "start": "deno run --env-file --allow-net --allow-read --allow-run --allow-env server.ts",
-    "dev": "deno run --env-file --allow-net --allow-read --allow-run --allow-env --watch server.ts",
-    "build": "deno run -A build.ts"
+    "dev": "deno run -A npm:@tailwindcss/cli -i src/index.css -o dist/assets/index.css --watch & deno run -A npm:esbuild src/main.ts --bundle --outfile=dist/assets/index.js --platform=browser --format=esm --watch & deno run --env-file --allow-net --allow-read --allow-run --allow-env --watch server.ts",
+    "build": "deno run -A npm:@tailwindcss/cli -i src/index.css -o dist/assets/index.css -m && deno run -A npm:esbuild src/main.ts --bundle --outfile=dist/assets/index.js --platform=browser --format=esm --minify && cp index.html dist/index.html"
   },
   "imports": {
     "@std/http/file-server": "jsr:@std/http@^1.1.2/file-server",
+    "@std/encoding/base64": "jsr:@std/encoding@^1.0.0/base64",
     "@google/genai": "npm:@google/genai@^2.10.0",
     "@supabase/supabase-js": "npm:@supabase/supabase-js@^2.43.0",
-    "iconify-icon": "npm:iconify-icon@^1.0.8",
     "tailwindcss": "npm:tailwindcss@^4.0.0"
   },
   "compilerOptions": {
