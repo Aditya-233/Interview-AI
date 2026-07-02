@@ -2,7 +2,7 @@
   "tasks": {
     "start": "deno run --env-file --allow-net --allow-read --allow-run --allow-env server.ts",
     "dev": "deno run -A npm:@tailwindcss/cli -i src/index.css -o dist/assets/index.css --watch & deno run -A npm:esbuild src/main.ts --bundle --outfile=dist/assets/index.js --platform=browser --format=esm --watch & deno run --env-file --allow-net --allow-read --allow-run --allow-env --watch server.ts",
-    "build": "deno run -A npm:@tailwindcss/cli -i src/index.css -o dist/assets/index.css -m && deno run -A npm:esbuild src/main.ts --bundle --outfile=dist/assets/index.js --platform=browser --format=esm --minify && cp index.html dist/index.html"
+    "build": "deno run -A npm:@tailwindcss/cli -i src/index.css -o dist/assets/index.css -m && deno run -A npm:esbuild src/main.ts --bundle --outfile=dist/assets/index.js --platform=browser --format=esm --minify && cp index.html dist/index.html && cp logo.jpg dist/logo.jpg"
   },
   "imports": {
     "@std/http/file-server": "jsr:@std/http@^1.1.2/file-server",
