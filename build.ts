@@ -6,6 +6,11 @@ const isMinify = Deno.args.includes("--minify");
 const supabaseUrl = Deno.env.get("SUPABASE_URL");
 const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY");
 
+if (!isWatch && (!supabaseUrl || !supabaseAnonKey)) {
+  console.error("Build Error: SUPABASE_URL or SUPABASE_ANON_KEY environment variables are missing or empty!");
+  Deno.exit(1);
+}
+
 const ctx = await esbuild.context({
   entryPoints: ["src/script.ts"],
   bundle: true,
