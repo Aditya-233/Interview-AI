@@ -134,11 +134,16 @@ async function handleRouting() {
 
 // Query DB to get the recentInterviewPlans
 async function fetchRecentPlans() {
-  // https://supabase.com/docs/reference/javascript/select
+  // To ensure state.user.id is accessible else TS complains
+  if (!state.user) {
+    return;
+  }
+
+  //  https://supabase.com/docs/reference/javascript/select
   // https://supabase.com/docs/reference/javascript/using-filters-eq
   // https://supabase.com/docs/reference/javascript/using-modifiers-order
   // Just extract the relevant info from recent to oldest for plans
-  const { data } = await supabase.from("reports").select("id, title, matchScore, createdAt").eq("user_id", state.user!.id).order("createdAt", { ascending: false });
+  const { data } = await supabase.from("reports").select("id, title, matchScore, createdAt").eq("user_id", state.user.id).order("createdAt", { ascending: false });
 
   // data is not of type/interface Recentplan[] since we didn't generated database.types.ts for SQL Table types
   state.reports = (data ?? []) as RecentPlan[];
@@ -168,6 +173,12 @@ async function generateReport(jd: string) {
   // If job description or file is not attached
   if (!jd.trim() || !state.selectedFile) {
     return alert("Description and resume PDF are required.");
+  }
+  if (state.selectedFile.size > 3 * 1024 * 1024) {
+    return alert("Resume PDF size must be 3MB or smaller.");
+  }
+  if (state.selectedFile.type !== "application/pdf") {
+    return alert("Only PDF resume files are accepted.");
   }
 
   state.isGenerating = true;
@@ -203,10 +214,15 @@ async function generateReport(jd: string) {
     preparationPlan = [],
   } = data.report;
 
+  // TS complaining about user_id: state.user.id,
+  if (!state.user) {
+    return;
+  }
+
   // Now to insert our response into DB to show as user's history
   // https://supabase.com/docs/reference/javascript/insert
   const { data: newReportObj, error: insertError } = await supabase.from("reports").insert({
-    user_id: state.user!.id,
+    user_id: state.user.id,
     jobDescription: jd.trim(),
     title,
     matchScore,

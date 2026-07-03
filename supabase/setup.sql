@@ -1,7 +1,7 @@
 -- 1. Create the reports table referencing auth.users
 create table if not exists public.reports (
   id uuid default gen_random_uuid() primary key,
-  user_id uuid references auth.users not null,
+  user_id uuid references auth.users(id) on delete cascade not null,
   title text not null,
   "jobDescription" text not null,
   "matchScore" integer not null,
@@ -24,3 +24,4 @@ create policy "Users can read own reports"
 create policy "Users can insert own reports"
   on public.reports for insert
   with check (auth.uid() = user_id);
+

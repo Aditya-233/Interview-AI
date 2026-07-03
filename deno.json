@@ -1,8 +1,8 @@
 {
   "tasks": {
     "start": "deno run --env-file --allow-net --allow-read --allow-run --allow-env server.ts",
-    "dev": "mkdir -p dist && cp public/index.html dist/index.html && cp public/logo.jpg dist/logo.jpg && deno run -A npm:@tailwindcss/cli -i src/style.css -o dist/style.css --watch & deno run -A npm:esbuild src/script.ts --bundle --outfile=dist/script.js --platform=browser --format=esm --watch & deno run --env-file --allow-net --allow-read --allow-run --allow-env --watch server.ts",
-    "build": "mkdir -p dist && cp public/index.html dist/index.html && cp public/logo.jpg dist/logo.jpg && deno run -A npm:@tailwindcss/cli -i src/style.css -o dist/style.css -m && deno run -A npm:esbuild src/script.ts --bundle --outfile=dist/script.js --platform=browser --format=esm --minify"
+    "dev": "mkdir -p dist && cp public/index.html dist/index.html && cp public/logo.jpg dist/logo.jpg && deno run -A npm:@tailwindcss/cli -i src/index.css -o dist/style.css --watch & deno run -A npm:esbuild src/script.ts --bundle --outfile=dist/script.js --platform=browser --format=esm --watch & deno run --env-file --allow-net --allow-read --allow-run --allow-env --watch server.ts",
+    "build": "mkdir -p dist && cp public/index.html dist/index.html && cp public/logo.jpg dist/logo.jpg && deno run -A npm:@tailwindcss/cli -i src/index.css -o dist/style.css -m && deno run -A npm:esbuild src/script.ts --bundle --outfile=dist/script.js --platform=browser --format=esm --minify"
   },
   "imports": {
     "@std/http/file-server": "jsr:@std/http@^1.1.2/file-server",

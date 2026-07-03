@@ -1,5 +1,5 @@
-import { GoogleGenAI } from "npm:@google/genai";
-import { encodeBase64 } from "jsr:@std/encoding/base64";
+import { GoogleGenAI } from "@google/genai";
+import { encodeBase64 } from "@std/encoding/base64";
 
 const corsHeaders = {
   // Access-Control-Allow-Origin: Checked by the browser's security sandbox to verify if the frontend origin is allowed.
@@ -131,7 +131,21 @@ export default {
     const jd = fd.get("jobDescription") as string;
 
     if (!file || !jd) {
-      return Response.json({ error: "Missing fields." }, {
+      return Response.json({ error: "Missing required fields." }, {
+        status: 400,
+        headers: corsHeaders,
+      });
+    }
+
+    if (file.size > 3 * 1024 * 1024) {
+      return Response.json({ error: "Resume PDF size must be 3MB or less." }, {
+        status: 400,
+        headers: corsHeaders,
+      });
+    }
+
+    if (file.type !== "application/pdf") {
+      return Response.json({ error: "Only PDF resume files are accepted." }, {
         status: 400,
         headers: corsHeaders,
       });
@@ -170,7 +184,7 @@ export default {
     if (res.text) {
       return Response.json({ report: JSON.parse(res.text) }, { headers: corsHeaders });
     } else {
-      return Response.json({ STATUS_CODE: 404 }, { headers: corsHeaders });
+      return Response.json({ error: "Failed to generate report from LLM." }, { status: 502, headers: corsHeaders });
     }
   },
 };

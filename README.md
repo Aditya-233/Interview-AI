@@ -55,11 +55,11 @@ graph LR
 │   ├── index.html       # Main entry document
 │   ├── logo.jpg         # Branding
 ├── src/                 # Client-side source code (Not compiled)
-│   ├── style.css        # Base styling and design system tokens
-│   └── script.ts          # Core SPA Router, state machine, and UI components
+│   ├── index.css        # Base styling and design system tokens
+│   └── script.ts        # Core SPA Router, state machine, and UI components
 ├── supabase/            # Supabase backend definitions
 │   └── functions/       # Edge functions (e.g., generate-report)
-│       └── index.ts          # Core SPA Router, state machine, and UI components
+│       └── index.ts     # Edge function handling Gemini analysis
 ├── deno.json            # Task configurations and dependencies
 └── server.ts            # Local development file server
 ```
@@ -107,26 +107,26 @@ Open [http://localhost:3000](http://localhost:3000) in your web browser.
 The database table `reports` holds generated plans. Create the table in your Supabase SQL Editor:
 
 ```sql
-create table reports (
+create table public.reports (
   id uuid default gen_random_uuid() primary key,
   user_id uuid references auth.users(id) on delete cascade not null,
   title text not null,
-  matchScore int not null,
-  jobDescription text not null,
-  technicalQuestions jsonb default '[]'::jsonb not null,
-  behavioralQuestions jsonb default '[]'::jsonb not null,
-  skillGaps jsonb default '[]'::jsonb not null,
-  preparationPlan jsonb default '[]'::jsonb not null,
-  createdAt timestamp with time zone default timezone('utc'::text, now()) not null
+  "jobDescription" text not null,
+  "matchScore" integer not null,
+  "technicalQuestions" jsonb default '[]'::jsonb,
+  "behavioralQuestions" jsonb default '[]'::jsonb,
+  "skillGaps" jsonb default '[]'::jsonb,
+  "preparationPlan" jsonb default '[]'::jsonb,
+  "createdAt" timestamp with time zone default timezone('utc'::text, now()) not null
 );
 
 -- Enable Row Level Security (RLS)
-alter table reports enable row level security;
+alter table public.reports enable row level security;
 
--- Policy: Users can only see/edit their own reports
-create policy "Users can manage their own reports"
-  on reports for all
-  using (auth.uid() = user_id);
+-- Policies: Allow users to read and create their own reports
+create policy "Users can read own reports" on public.reports for select using (auth.uid() = user_id);
+create policy "Users can insert own reports" on public.reports for insert with check (auth.uid() = user_id);
+
 ```
 
 ---
@@ -144,7 +144,7 @@ The client application is built to deploy automatically to GitHub Pages via GitH
    git commit -m "Configure production deployment"
    git push origin main
    ```
-3. The build script automatically copies `index.html` into `./dist` and compiles assets into `./dist/assets`. Since assets are referenced relatively (e.g. `assets/index.css`), the project functions perfectly under repository sub-paths (like `/Interview-AI/`).
+3. The build script automatically compiles assets into `./dist`.
 
 ### Supabase Edge Functions (Dashboard Setup)
 
@@ -153,7 +153,7 @@ Since the database and backend are managed directly in the Supabase Dashboard wi
 1. **Create the Edge Function**:
    - Go to your **Supabase Dashboard** -> **Edge Functions** (the lightning icon on the sidebar).
    - Click **New Function** (or select the existing `generate-report` function).
-   - Paste the code from [supabase/functions/generate-report/index.ts](file:///home/aditya/Downloads/Test-Project/supabase/functions/generate-report/index.ts) directly into the online editor.
+   - Paste the code from `supabase/functions/generate-report/index.ts` directly into the online editor.
 
 2. **Add Gemini API Key Secret**:
    - In the **Supabase Dashboard**, navigate to **Settings** (gear icon) -> **Edge Functions**.
