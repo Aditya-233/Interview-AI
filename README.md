@@ -1,6 +1,6 @@
 # InterviewAI 🧠
 
-A production-grade, serverless AI web application designed to evaluate software engineering candidates by cross-analyzing resume PDFs against target job descriptions. Leveraging **Gemini 2.5 Flash** structured outputs, Deno v2, Supabase Auth (OAuth 2.0), PostgreSQL, and a tailored build system, InterviewAI delivers match scoring, severity-classified skill gaps diagnostic, targeted technical/behavioral interview question cards, and day-by-day prep roadmaps.
+A production-grade, serverless AI web application designed to evaluate software engineering candidates by cross-analyzing resume PDFs against target job descriptions. Leveraging **Gemini 3.5 Flash** structured outputs, Deno v2, Supabase Auth (OAuth 2.0), PostgreSQL, and a tailored build system, InterviewAI delivers match scoring, severity-classified skill gaps diagnostic, targeted technical/behavioral interview question cards, and day-by-day prep roadmaps.
 
 ---
 
