@@ -6,19 +6,6 @@ dist/
 
 # Local environment files (sensitive keys)
 .env
-.env.local
-.env.*.local
 
 # Editor & IDE local configurations
 .zed/
-.vscode/
-.idea/
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.swp
-
-# OS metadata
-.DS_Store
-Thumbs.db

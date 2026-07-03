@@ -51,13 +51,16 @@ graph LR
 ├── .github/workflows/   # GitHub Actions deployment pipelines
 │   └── deploy.yml       # Production builds and deploys to GitHub Pages
 ├── dist/                # Production build output directory (git-ignored)
-├── src/                 # Client-side source code
-│   ├── index.css        # Base styling and design system tokens
-│   └── main.ts          # Core SPA Router, state machine, and UI components
+├── public/              # Client-side source code (Compiled just copy)
+│   ├── index.html       # Main entry document
+│   ├── logo.jpg         # Branding
+├── src/                 # Client-side source code (Not compiled)
+│   ├── style.css        # Base styling and design system tokens
+│   └── script.ts          # Core SPA Router, state machine, and UI components
 ├── supabase/            # Supabase backend definitions
 │   └── functions/       # Edge functions (e.g., generate-report)
+│       └── index.ts          # Core SPA Router, state machine, and UI components
 ├── deno.json            # Task configurations and dependencies
-├── index.html           # Main entry document
 └── server.ts            # Local development file server
 ```
 
