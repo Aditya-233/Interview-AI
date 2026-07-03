@@ -37,8 +37,11 @@ interface RecentPlan {
   createdAt: string; // Date used to sort and display generation timing
 }
 
+declare const SUPABASE_URL: string;
+declare const SUPABASE_ANON_KEY: string;
+
 // https://supabase.com/docs/reference/javascript/initializing
-const supabase = createClient("https://cuvqdoxebbgtxevxgmal.supabase.co", "sb_publishable_bUuA4ZBTLb4WkMWap0x4vw_GZ7HMouV"); // Supabase JS SDK client instance
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY); // Supabase JS SDK client instance
 
 // We can create a interface but we have to again define state for default values and this is way concise
 // Single Source of Truth
