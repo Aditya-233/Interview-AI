@@ -159,7 +159,7 @@ export default {
     // Send prompt instructions along with the resume PDF binary inline data to the Gemini model to get structured JSON plan
     // https://ai.google.dev/gemini-api/docs/generate-content/document-processing#inline_data
     const res = await ai.models.generateContent({
-      model: "gemini-3.5-flash",
+      model: "gemini-3.1-flash-lite",
       contents: [
         {
           inlineData: {
